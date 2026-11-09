@@ -1,0 +1,217 @@
+{
+  "name": "Automated Hacker News Digest",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "id": "256e2301-3693-4682-8375-c4e197560c50",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://hacker-news.firebaseio.com/v0/topstories.json",
+        "options": {}
+      },
+      "id": "7ffe81d0-f996-4ee9-9e52-b0443371d5a6",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst items = $input.all();\n\n// Select the first 5 Hacker News story IDs\nconst topFive = items.slice(0, 5);\n\nreturn topFive.map(item => {\n  const data = item.json;\n\n  // Extract the numeric story ID\n  const id = typeof data === \"number\"\n    ? data\n    : Object.values(data).find(value => typeof value === \"number\");\n\n  if (id === undefined) {\n    throw new Error(\"Could not extract story ID\");\n  }\n\n  return {\n    json: {\n      id: id\n    }\n  };\n});\n"
+      },
+      "id": "5dfde178-4e35-4486-9ffc-23c966f4f7be",
+      "name": "Code in JavaScript",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://hacker-news.firebaseio.com/v0/item/{{$json.id}}.json",
+        "options": {}
+      },
+      "id": "b0f63514-f8e8-466a-b27a-ac7d374ac1b5",
+      "name": "HTTP Request1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        672,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst items = $input.all();\n\n// Get valid Hacker News stories\nconst stories = items\n  .map(item => item.json)\n  .filter(story =>\n    story &&\n    story.type === \"story\" &&\n    story.title &&\n    typeof story.score === \"number\"\n  );\n\n// Sort stories by highest score first\nstories.sort((a, b) => b.score - a.score);\n\n// Keep only the top 5 stories\nconst topStories = stories.slice(0, 5);\n\n// Format the output\nreturn topStories.map(story => ({\n  json: {\n    title: story.title,\n    author: story.by || \"Unknown\",\n    score: story.score,\n    url: story.url || \"\",\n    comments: story.descendants || 0,\n    highScore: story.score > 100\n  }\n}));\n"
+      },
+      "id": "37b235d2-d537-4c12-801d-92194104e36d",
+      "name": "Code in JavaScript1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "cff04832-345b-4ab5-a922-b7ab9e4985dd",
+              "leftValue": "={{$json.score}}",
+              "rightValue": 100,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "id": "e14f46d5-6c70-4cf3-875d-592b0c4fb6f0",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1120,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "7001246960",
+        "text": "={{ '🔥 Hacker News Alert!\\n\\n' +\n'📰 Title: ' + $json.title + '\\n' +\n'👤 Author: ' + $json.author + '\\n' +\n'⭐ Score: ' + $json.score + '\\n' +\n'💬 Comments: ' + $json.comments + '\\n' +\n'🔗 Link: ' + $json.url }}",
+        "additionalFields": {}
+      },
+      "id": "13e8e6c1-ec36-46b5-8792-848834236099",
+      "name": "Send a text message",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1344,
+        -96
+      ],
+      "webhookId": "78a6000d-a5c0-460f-9763-d5e23ca3d6b5",
+      "credentials": {
+        "telegramApi": {
+          "id": "aGMdUGNvcNbW6m72",
+          "name": "Telegram account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "bff47300-cc22-4cbb-b9be-b8227e22601f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "13ff7d400183ace63891a9f1b626abf588c301aa5e8bf3ebb15cee2be051761a"
+  },
+  "nodeGroups": [],
+  "id": "09smH17HzgBw21lC",
+  "tags": []
+}
