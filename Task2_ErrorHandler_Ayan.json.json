@@ -1,0 +1,68 @@
+{
+  "name": "Hacker News Error Handler",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e0d2dff8-1b34-4e97-bfd8-433608b8441b",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "chatId": "7001246960",
+        "text": "={{ '🚨 WORKFLOW ERROR!\\n\\n' + 'Workflow: ' + ($json.workflow?.name || 'Unknown') + '\\n' + 'Failed Node: ' + ($json.execution?.lastNodeExecuted || 'Unknown') + '\\n' + 'Error: ' + ($json.execution?.error?.message || 'Unknown error') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "e36cec33-0c06-4371-8e0e-33700ccc08e1",
+      "name": "Send a text message",
+      "webhookId": "660cc91e-6250-4788-a6a0-698044fe24cb",
+      "credentials": {
+        "telegramApi": {
+          "id": "aGMdUGNvcNbW6m72",
+          "name": "Telegram account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "8b8b20aa-19bb-41c3-b8cb-202b1594cad8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "13ff7d400183ace63891a9f1b626abf588c301aa5e8bf3ebb15cee2be051761a"
+  },
+  "nodeGroups": [],
+  "id": "jt3Tp9OgGsQK2rkh",
+  "tags": []
+}
