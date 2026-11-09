@@ -1,0 +1,43 @@
+# Automation & QA Developer Assessment
+
+## Project Overview
+This repository contains my QA Testing and n8n Automation assessment.
+
+## Task 1: Manual QA Testing
+- Tested website: https://demo.realworld.show
+- Performed registration, login, article creation, editing, deletion and logout testing.
+- Identified and documented 7 bugs.
+- Prepared a QA report with severity and root cause analysis.
+- Bug screenshots are included in `Task1/screenshots/`.
+
+## Task 2: n8n Automation
+Created an automated Hacker News digest workflow using n8n.
+
+### Main Workflow
+1. Schedule Trigger runs hourly.
+2. HTTP Request fetches Hacker News top story IDs.
+3. Code node selects the first five stories.
+4. HTTP Request fetches story details.
+5. Code node filters and sorts stories by score.
+6. IF node checks whether the score is greater than 100.
+7. Telegram sends alerts for high-scoring stories.
+
+### Error Handling
+A separate Error Handler workflow uses Error Trigger and Telegram to send notifications when a workflow fails.
+
+## Technologies Used
+- n8n
+- JavaScript
+- Hacker News API
+- Telegram Bot API
+- Manual QA Testing
+
+## Project Structure
+- `Task1/` – QA report and screenshots
+- `Task2/` – Main workflow, Error Handler and screenshots
+
+## Security
+Credentials are managed using n8n Credentials. Private tokens and passwords should not be shared publicly.
+
+## Author
+Computer Engineering Student
